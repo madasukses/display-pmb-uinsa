@@ -183,6 +183,24 @@
     display:flex; align-items:center; justify-content:center; transition:background 0.2s;
   }
   #cfgToggle:hover { background:rgba(255,255,255,0.22); }
+
+  /* Mute banner */
+  #muteBanner {
+    position:fixed; bottom:70px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.82); border:1px solid rgba(255,255,255,0.2);
+    border-radius:40px; padding:10px 24px;
+    display:flex; align-items:center; gap:10px;
+    color:#fff; font-size:clamp(13px,1.3vw,18px); font-weight:600;
+    cursor:pointer; z-index:300; backdrop-filter:blur(6px);
+    animation:pulse-banner 2s ease-in-out infinite;
+    transition:opacity 0.4s;
+  }
+  #muteBanner i { font-size:clamp(18px,1.8vw,26px); color:#f0c060; }
+  #muteBanner:hover { background:rgba(30,30,30,0.95); }
+  @keyframes pulse-banner {
+    0%,100% { box-shadow:0 0 0 0 rgba(240,192,96,0.4); }
+    50%      { box-shadow:0 0 0 10px rgba(240,192,96,0); }
+  }
 </style>
 </head>
 <body>
@@ -252,6 +270,12 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Mute banner -->
+<div id="muteBanner" onclick="unmuteVideo()" style="display:none">
+  <i class="ti ti-volume-off"></i>
+  <span>Video diputar tanpa suara — Klik untuk aktifkan suara</span>
 </div>
 
 <button id="cfgToggle" onclick="toggleConfig()" title="Pengaturan (S)">
@@ -356,13 +380,27 @@ function onYouTubeIframeAPIReady() {
   div.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
   ytPlayer=new YT.Player('ytPlayerDiv',{
     width:'100%', height:'100%',
-    playerVars:{ autoplay:1, controls:1, rel:0, modestbranding:1, iv_load_policy:3 },
+    playerVars:{ autoplay:1, mute:1, controls:1, rel:0, modestbranding:1, iv_load_policy:3 },
     events:{ onStateChange:onPlayerStateChange, onReady:onPlayerReady }
   });
 }
-function onPlayerReady() { if(ytVideos.length) playVideo(0); }
+function onPlayerReady() {
+  if(ytVideos.length) playVideo(0);
+  // Show mute banner
+  document.getElementById('muteBanner').style.display='flex';
+}
 function onPlayerStateChange(e) {
+  // YT.PlayerState.ENDED = 0 → auto next
   if(e.data===0 && ytVideos.length>1) playVideo((ytIndex+1)%ytVideos.length);
+}
+function unmuteVideo() {
+  if(ytPlayer && ytPlayer.unMute) {
+    ytPlayer.unMute();
+    ytPlayer.setVolume(80);
+  }
+  const banner=document.getElementById('muteBanner');
+  banner.style.opacity='0';
+  setTimeout(()=>banner.style.display='none', 400);
 }
 function playVideo(i) {
   if(!ytVideos.length) return;
