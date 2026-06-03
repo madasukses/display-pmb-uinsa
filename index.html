@@ -392,17 +392,33 @@ function toggleConfig() { document.getElementById('configPanel').classList.toggl
 // ── YOUTUBE via IFrame API ─────────────────────────────────
 let ytPlayer=null, ytVideos=[], ytIndex=0, ytReady=false;
 
-function extractYtId(url) {
-  if (!url) return null;
+// Parse video URL — return {type:'yt'|'drive', id}
+function parseVideoUrl(url) {
+  if(!url) return null;
   url = url.trim();
+  // YouTube
   const m1=url.match(/[?&]v=([^&]+)/);
   const m2=url.match(/youtu\.be\/([^?]+)/);
   const m3=url.match(/embed\/([^?&]+)/);
-  return (m1&&m1[1])||(m2&&m2[1])||(m3&&m3[1])||null;
+  const ytId=(m1&&m1[1])||(m2&&m2[1])||(m3&&m3[1]);
+  if(ytId) return {type:'yt', id:ytId};
+  // Google Drive
+  const d1=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  const d2=url.match(/id=([a-zA-Z0-9_-]+)/);
+  const drId=(d1&&d1[1])||(d2&&d2[1]);
+  if(drId && url.includes('drive.google')) return {type:'drive', id:drId};
+  return null;
 }
+// Keep backward compat
+function extractYtId(url) { const v=parseVideoUrl(url); return (v&&v.type==='yt')?v.id:null; }
 
 function onYouTubeIframeAPIReady() {
   ytReady=true;
+  // YT player hanya dibuat jika ada video YT
+  if(ytVideos.some(v=>v.type==='yt')) initYtPlayer();
+}
+function initYtPlayer() {
+  if(ytPlayer) return;
   const div=document.getElementById('ytPlayerDiv');
   div.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
   ytPlayer=new YT.Player('ytPlayerDiv',{
@@ -413,27 +429,66 @@ function onYouTubeIframeAPIReady() {
 }
 function onPlayerReady() {
   if(ytVideos.length) playVideo(0);
-  // Show mute banner
   document.getElementById('muteBanner').style.display='flex';
 }
 function onPlayerStateChange(e) {
-  // ENDED (0) → lanjut ke video berikutnya, loop kembali ke awal setelah video terakhir
-  if(e.data===0 && ytVideos.length>1) playVideo((ytIndex+1) % ytVideos.length);
+  if(e.data===0) playVideo((ytIndex+1) % ytVideos.length);
 }
 function unmuteVideo() {
-  if(ytPlayer && ytPlayer.unMute) {
-    ytPlayer.unMute();
-    ytPlayer.setVolume(80);
-  }
+  if(ytPlayer && ytPlayer.unMute) { ytPlayer.unMute(); ytPlayer.setVolume(80); }
+  // unmute drive iframe juga tidak bisa via JS, tapi hilangkan banner
   const banner=document.getElementById('muteBanner');
   banner.style.opacity='0';
   setTimeout(()=>banner.style.display='none', 400);
 }
+
+// Drive video iframe & ended detection
+let driveEndTimer=null;
+function playDriveVideo(video) {
+  // Sembunyikan YT player, tampilkan drive iframe
+  if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+  document.getElementById('ytPlayerDiv').style.display='none';
+
+  let driveFrame=document.getElementById('driveFrame');
+  if(!driveFrame) {
+    driveFrame=document.createElement('iframe');
+    driveFrame.id='driveFrame';
+    driveFrame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:none;z-index:1;';
+    driveFrame.allow='autoplay; fullscreen';
+    document.querySelector('.box-video').appendChild(driveFrame);
+  }
+  driveFrame.style.display='block';
+  driveFrame.src='https://drive.google.com/file/d/'+video.id+'/preview?autoplay=1';
+
+  // Drive tidak punya end event — estimasi durasi via metadata (tidak bisa), pakai timer fallback
+  // User bisa klik next manual, atau set durasi default 10 menit per video
+  clearTimeout(driveEndTimer);
+  const durasi = (video.durasi||600) * 1000; // default 10 menit
+  driveEndTimer = setTimeout(()=>{ playVideo((ytIndex+1)%ytVideos.length); }, durasi);
+}
+
 function playVideo(i) {
   if(!ytVideos.length) return;
-  ytIndex=i;
+  ytIndex = i;
   document.getElementById('vidOverlay').style.display='none';
-  if(ytPlayer&&ytPlayer.loadVideoById) ytPlayer.loadVideoById(ytVideos[i].id);
+  const video = ytVideos[i];
+
+  clearTimeout(driveEndTimer);
+
+  if(video.type==='yt') {
+    // Sembunyikan drive frame jika ada
+    const driveFrame=document.getElementById('driveFrame');
+    if(driveFrame) driveFrame.style.display='none';
+    document.getElementById('ytPlayerDiv').style.display='block';
+
+    if(ytPlayer && ytPlayer.loadVideoById) {
+      ytPlayer.loadVideoById(video.id);
+    } else if(!ytPlayer) {
+      initYtPlayer();
+    }
+  } else if(video.type==='drive') {
+    playDriveVideo(video);
+  }
   renderPlaylistNav();
 }
 function nextVideo() { if(ytVideos.length) playVideo((ytIndex+1)%ytVideos.length); }
@@ -443,8 +498,10 @@ function renderPlaylistNav() {
   const btns=document.getElementById('playlistBtns');
   if(ytVideos.length>1) {
     nav.style.display='flex';
-    btns.innerHTML=ytVideos.map((v,i)=>
-      `<button class="${i===ytIndex?'active':''}" onclick="playVideo(${i})">${i+1}</button>`).join('');
+    btns.innerHTML=ytVideos.map((v,i)=>{
+      const icon = v.type==='drive' ? '📁' : '▶';
+      return `<button class="${i===ytIndex?'active':''}" onclick="playVideo(${i})">${icon}${i+1}</button>`;
+    }).join('');
   } else { nav.style.display='none'; }
 }
 
@@ -529,8 +586,9 @@ function fetchSheet(showStatus) {
         if(!groupMap[kegiatan]) groupMap[kegiatan]=[];
         if(tahap) groupMap[kegiatan].push({tahap, mulai:parseDate(mulai), selesai:parseDate(selesai), ket});
 
-        const ytId=extractYtId(ytUrl);
-        if(ytId && !newVideos.find(v=>v.id===ytId)) newVideos.push({url:ytUrl,id:ytId});
+        const vidParsed = parseVideoUrl(ytUrl);
+        if(vidParsed && !newVideos.find(v=>v.id===vidParsed.id))
+          newVideos.push({url:ytUrl, type:vidParsed.type, id:vidParsed.id});
 
         const drId=driveId(drUrl);
         if(drId && !newPosters.find(p=>p.id===drId)) newPosters.push({id:drId,src:'https://drive.google.com/thumbnail?id='+drId+'&sz=w800'});
@@ -544,7 +602,10 @@ function fetchSheet(showStatus) {
 
       if(newVideos.length) {
         ytVideos=newVideos; renderPlaylistNav();
+        // Init YT player jika ada video YT dan player belum ada
+        if(newVideos.some(v=>v.type==='yt') && !ytPlayer && ytReady) initYtPlayer();
         if(ytPlayer&&ytPlayer.loadVideoById) playVideo(0);
+        else if(newVideos[0].type==='drive') playVideo(0);
       }
       if(newPosters.length) {
         posters=newPosters; renderPosterList(); showPoster(0); setupPosterSlide();
