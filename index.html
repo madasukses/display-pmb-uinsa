@@ -315,9 +315,11 @@
   </div>
 
   <div class="cfg-section">
-    <div class="cfg-label">Poster Slideshow (Google Drive)</div>
-    <input class="cfg-input" type="text" id="driveInput" placeholder="Link share Google Drive gambar...">
-    <button class="cfg-btn primary" onclick="addPoster()"><i class="ti ti-plus"></i> Tambah Poster</button>
+    <div class="cfg-label">Poster Slideshow (Upload Gambar)</div>
+    <label class="cfg-btn primary" style="cursor:pointer">
+      <i class="ti ti-photo-up"></i> Upload Gambar Poster
+      <input type="file" accept="image/*" multiple onchange="addPosters(this)" style="display:none">
+    </label>
     <ul class="yt-list" id="posterList"></ul>
     <div class="cfg-label" style="margin-top:6px">Ganti poster setiap (detik)</div>
     <input class="cfg-input" type="number" id="posterSec" value="10" min="3" max="120" onchange="setupPosterSlide()">
@@ -550,25 +552,27 @@ function buildMarquee() {
 
 setInterval(fetchSheet, 5*60*1000);
 
-// ── POSTER SLIDESHOW ───────────────────────────────────────
+// ── POSTER SLIDESHOW (Upload) ──────────────────────────────
 let posters = [], posterIndex = 0, posterTimer = null;
 
-function driveThumb(url) {
-  const m1 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  const m2 = url.match(/id=([a-zA-Z0-9_-]+)/);
-  const id = (m1&&m1[1])||(m2&&m2[1]);
-  return id ? 'https://drive.google.com/thumbnail?id='+id+'&sz=w800' : null;
-}
-
-function addPoster() {
-  const url = document.getElementById('driveInput').value.trim();
-  const src = driveThumb(url);
-  if (!src) { alert('Link Google Drive tidak valid.'); return; }
-  posters.push({ url, src });
-  document.getElementById('driveInput').value = '';
-  renderPosterList();
-  showPoster(posters.length-1);
-  setupPosterSlide();
+function addPosters(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  let loaded = 0;
+  files.forEach(file => {
+    const r = new FileReader();
+    r.onload = e => {
+      posters.push({ name: file.name, src: e.target.result });
+      loaded++;
+      if (loaded === files.length) {
+        renderPosterList();
+        showPoster(posters.length - files.length);
+        setupPosterSlide();
+      }
+    };
+    r.readAsDataURL(file);
+  });
+  input.value = '';
 }
 
 function removePoster(i) {
@@ -579,7 +583,7 @@ function removePoster(i) {
 
 function renderPosterList() {
   document.getElementById('posterList').innerHTML = posters.map((p,i) =>
-    `<li><span>Poster ${i+1}</span><button onclick="removePoster(${i})"><i class="ti ti-x"></i></button></li>`
+    `<li><span>Poster ${i+1}: ${p.name}</span><button onclick="removePoster(${i})"><i class="ti ti-x"></i></button></li>`
   ).join('');
 }
 
