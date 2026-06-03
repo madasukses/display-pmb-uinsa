@@ -7,215 +7,182 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    width: 100%; height: 100%;
-    background: #0a0a0a;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
-  }
+  html, body { width:100%; height:100%; background:#0a0a0a; font-family:'Segoe UI',Tahoma,sans-serif; overflow:hidden; }
 
   #tvBg {
-    position: fixed; inset: 0; z-index: 0;
-    background-color: #0d1b2a;
-    background-size: cover; background-position: center;
-    filter: blur(8px) brightness(0.3);
-    transform: scale(1.08);
-    transition: background-image 0.8s ease;
+    position:fixed; inset:0; z-index:0;
+    background-color:#0d1b2a; background-size:cover; background-position:center;
+    filter:blur(8px) brightness(0.3); transform:scale(1.08);
+    transition:background-image 0.8s ease;
   }
 
   .tv-root {
-    position: relative; z-index: 1;
-    width: 100vw; height: 100vh;
-    display: flex; flex-direction: column;
-    gap: 10px; padding: 14px;
+    position:relative; z-index:1;
+    width:100vw; height:100vh;
+    display:flex; flex-direction:column; gap:10px; padding:14px;
   }
 
-  /* TOP BAR */
-  .row-top { display: flex; gap: 10px; align-items: stretch; flex-shrink: 0; }
+  /* TOP */
+  .row-top { display:flex; gap:10px; align-items:stretch; flex-shrink:0; }
 
   .box-judul {
-    flex: 1;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 12px; padding: 10px 22px;
-    display: flex; flex-direction: column; justify-content: center;
+    flex:1; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px; padding:10px 18px;
+    display:flex; align-items:center; gap:14px;
   }
+  .logo-uinsa { height:clamp(48px,6vh,72px); width:auto; flex-shrink:0; }
+  .judul-text { display:flex; flex-direction:column; justify-content:center; }
   .judul-main {
-    font-size: clamp(18px, 2.2vw, 32px);
-    font-weight: 800; color: #fff; letter-spacing: 0.6px; line-height: 1.25;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+    font-size:clamp(16px,2vw,28px); font-weight:800; color:#fff;
+    letter-spacing:0.5px; line-height:1.25; text-shadow:0 1px 8px rgba(0,0,0,0.6);
   }
 
   .box-waktu {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 12px; padding: 10px 20px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-width: 210px;
+    background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px; padding:10px 20px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:210px;
   }
-  .waktu-jam {
-    font-size: clamp(32px, 4vw, 56px);
-    font-weight: 700; color: #80ff99;
-    letter-spacing: 4px; font-variant-numeric: tabular-nums;
-  }
-  .waktu-tgl  { font-size: clamp(11px, 1.1vw, 16px); color: rgba(255,255,255,0.6); margin-top: 3px; text-align: center; }
-  .waktu-hijri{ font-size: clamp(11px, 1.1vw, 16px); color: #f0c060; margin-top: 3px; text-align: center; }
+  .waktu-jam  { font-size:clamp(30px,4vw,54px); font-weight:700; color:#80ff99; letter-spacing:4px; font-variant-numeric:tabular-nums; }
+  .waktu-tgl  { font-size:clamp(11px,1.1vw,16px); color:rgba(255,255,255,0.6); margin-top:3px; text-align:center; }
+  .waktu-hijri{ font-size:clamp(11px,1.1vw,16px); color:#f0c060; margin-top:3px; text-align:center; }
 
   /* MAIN */
-  .row-main { display: flex; gap: 10px; flex: 1; min-height: 0; }
+  .row-main { display:flex; gap:10px; flex:1; min-height:0; }
 
-  /* VIDEO */
   .box-video {
-    flex: 3; background: #000;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; overflow: hidden; position: relative;
+    flex:3; background:#000; border:1px solid rgba(255,255,255,0.1);
+    border-radius:12px; overflow:hidden; position:relative;
   }
-  #ytFrame { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  #ytPlayerDiv { position:absolute; inset:0; width:100%; height:100%; }
   .vid-overlay {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 14px;
-    background: #000;
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; background:#000; z-index:2;
   }
-  .vid-overlay i { font-size: 72px; color: #e63946; }
-  .vid-overlay span { font-size: clamp(14px, 1.4vw, 20px); color: #666; }
-
+  .vid-overlay i { font-size:72px; color:#e63946; }
+  .vid-overlay span { font-size:clamp(14px,1.4vw,20px); color:#666; }
   .playlist-nav {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: rgba(0,0,0,0.88); padding: 8px 10px;
-    display: flex; gap: 6px; align-items: center;
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(0,0,0,0.88); padding:8px 10px;
+    display:flex; gap:6px; align-items:center; z-index:3;
   }
   .playlist-nav button {
-    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 6px; color: #fff; font-size: clamp(12px, 1.2vw, 18px);
-    padding: 6px 12px; cursor: pointer; white-space: nowrap;
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2);
+    border-radius:6px; color:#fff; font-size:clamp(12px,1.2vw,17px);
+    padding:6px 12px; cursor:pointer; white-space:nowrap;
   }
-  .playlist-nav button:hover { background: rgba(255,255,255,0.22); }
-  .playlist-nav button.active { background: #e63946; border-color: #e63946; }
+  .playlist-nav button:hover { background:rgba(255,255,255,0.22); }
+  .playlist-nav button.active { background:#e63946; border-color:#e63946; }
 
   /* RIGHT */
-  .col-right { flex: 1.2; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .col-right { flex:1.2; display:flex; flex-direction:column; gap:10px; min-width:0; }
 
-  /* TIMELINE */
   .box-timeline {
-    flex: 1; background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px; overflow: hidden;
-    display: flex; flex-direction: column; min-height: 0;
+    flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px; overflow:hidden; display:flex; flex-direction:column; min-height:0;
   }
   .tl-header {
-    background: rgba(255,255,255,0.09);
-    padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+    background:rgba(255,255,255,0.09); padding:10px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0;
   }
-  .tl-header span { font-size: clamp(13px, 1.2vw, 18px); font-weight: 700; color: #a0c4ff; text-transform: uppercase; letter-spacing: 1px; }
-  .tl-header button { background: none; border: none; color: #a0c4ff; cursor: pointer; font-size: clamp(16px, 1.5vw, 22px); padding: 0; }
-  .tl-body { flex: 1; overflow-y: auto; padding: 4px 0; }
-  .tl-body::-webkit-scrollbar { width: 4px; }
-  .tl-body::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+  .tl-header span { font-size:clamp(12px,1.2vw,17px); font-weight:700; color:#a0c4ff; text-transform:uppercase; letter-spacing:1px; }
+  .tl-header button { background:none; border:none; color:#a0c4ff; cursor:pointer; font-size:clamp(15px,1.5vw,22px); padding:0; }
+  .tl-body { flex:1; overflow-y:auto; padding:4px 0; }
+  .tl-body::-webkit-scrollbar { width:4px; }
+  .tl-body::-webkit-scrollbar-thumb { background:#444; border-radius:2px; }
 
   .tl-row {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:flex-start; gap:10px;
+    padding:9px 14px; border-bottom:1px solid rgba(255,255,255,0.05);
   }
-  .tl-row:last-child { border-bottom: none; }
-  .tl-dot { width: 11px; height: 11px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-  .dot-done  { background: #555; }
-  .dot-today { background: #80ff99; box-shadow: 0 0 8px #80ff9988; }
-  .dot-soon  { background: #f0c060; }
-  .dot-later { background: #a0c4ff; }
-  .tl-info { flex: 1; min-width: 0; }
-  .tl-nama { font-size: clamp(13px, 1.3vw, 19px); color: #e8e8e8; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tl-tgl  { font-size: clamp(11px, 1vw, 15px); color: #777; margin-top: 2px; }
-  .tl-ket  { font-size: clamp(11px, 1vw, 15px); color: #999; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tl-cd   { text-align: right; font-size: clamp(12px, 1.1vw, 17px); font-weight: 700; white-space: nowrap; min-width: 80px; }
-  .cd-done  { color: #555; }
-  .cd-today { color: #80ff99; }
-  .cd-soon  { color: #f0c060; }
-  .cd-later { color: #a0c4ff; }
-  .tl-msg { text-align: center; padding: 20px; color: #555; font-size: clamp(13px, 1.2vw, 18px); }
+  .tl-row:last-child { border-bottom:none; }
+  .tl-dot { width:11px; height:11px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .dot-done  { background:#555; }
+  .dot-today { background:#80ff99; box-shadow:0 0 8px #80ff9988; }
+  .dot-soon  { background:#f0c060; }
+  .dot-later { background:#a0c4ff; }
+  .tl-info { flex:1; min-width:0; }
+  .tl-nama { font-size:clamp(13px,1.3vw,19px); color:#e8e8e8; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-tgl  { font-size:clamp(11px,1vw,15px); color:#777; margin-top:2px; }
+  .tl-ket  { font-size:clamp(11px,1vw,15px); color:#999; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-cd   { text-align:right; font-size:clamp(12px,1.1vw,17px); font-weight:700; white-space:nowrap; min-width:80px; }
+  .cd-done  { color:#555; } .cd-today { color:#80ff99; } .cd-soon  { color:#f0c060; } .cd-later { color:#a0c4ff; }
+  .tl-msg { text-align:center; padding:20px; color:#555; font-size:clamp(13px,1.2vw,17px); }
 
   /* POSTER */
   .box-poster {
-    height: 36%; flex-shrink: 0;
-    background: rgba(0,0,0,0.35);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; overflow: hidden;
-    position: relative; display: flex; align-items: center; justify-content: center;
+    height:36%; flex-shrink:0; background:rgba(0,0,0,0.35);
+    border:1px solid rgba(255,255,255,0.1); border-radius:12px; overflow:hidden;
+    position:relative; display:flex; align-items:center; justify-content:center;
   }
-  .poster-ph { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #444; }
-  .poster-ph i { font-size: 38px; }
-  .poster-ph span { font-size: clamp(12px, 1.1vw, 16px); }
-  #posterSlide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-  #posterSlide img { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.6s ease; position: absolute; }
-  #posterSlide img.visible { opacity: 1; }
+  .poster-ph { display:flex; flex-direction:column; align-items:center; gap:8px; color:#444; }
+  .poster-ph i { font-size:38px; }
+  .poster-ph span { font-size:clamp(12px,1.1vw,16px); }
+  #posterSlide { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  #posterSlide img { width:100%; height:100%; object-fit:contain; opacity:0; transition:opacity 0.6s ease; position:absolute; }
+  #posterSlide img.visible { opacity:1; }
 
   /* MARQUEE */
   .box-marquee {
-    background: rgba(160,20,20,0.28);
-    border: 1px solid rgba(200,50,50,0.28);
-    border-radius: 12px; padding: 10px 0;
-    overflow: hidden; display: flex; align-items: center; flex-shrink: 0;
-    min-height: 50px;
+    background:rgba(160,20,20,0.28); border:1px solid rgba(200,50,50,0.28);
+    border-radius:12px; padding:10px 0;
+    overflow:hidden; display:flex; align-items:center; flex-shrink:0; min-height:50px;
   }
   .mq-label {
-    font-size: clamp(13px, 1.2vw, 18px); font-weight: 800; color: #ff9090;
-    background: rgba(160,20,20,0.55);
-    padding: 0 18px; white-space: nowrap; letter-spacing: 2px;
-    border-right: 1px solid rgba(200,80,80,0.35);
+    font-size:clamp(13px,1.2vw,18px); font-weight:800; color:#ff9090;
+    background:rgba(160,20,20,0.55); padding:0 18px; white-space:nowrap; letter-spacing:2px;
+    border-right:1px solid rgba(200,80,80,0.35);
   }
-  .mq-wrap { flex: 1; overflow: hidden; }
-  .mq-track { display: flex; white-space: nowrap; }
-  .mq-text  { font-size: clamp(14px, 1.35vw, 20px); color: #ffe080; padding-right: 100px; font-weight: 500; }
-  @keyframes mq-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .mq-track.running { animation: mq-scroll 55s linear infinite; }
+  .mq-wrap { flex:1; overflow:hidden; }
+  .mq-track { display:flex; white-space:nowrap; }
+  .mq-text  { font-size:clamp(14px,1.35vw,20px); color:#ffe080; padding-right:100px; font-weight:500; }
+  @keyframes mq-scroll { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .mq-track.running { animation:mq-scroll 55s linear infinite; }
 
   /* CONFIG PANEL */
   #configPanel {
-    position: fixed; top: 0; right: 0; bottom: 0; width: 360px;
-    background: #1a1a1a; border-left: 1px solid #333;
-    z-index: 100; overflow-y: auto; padding: 18px;
-    transform: translateX(100%); transition: transform 0.3s ease;
+    position:fixed; top:0; right:0; bottom:0; width:360px;
+    background:#1a1a1a; border-left:1px solid #333; z-index:100;
+    overflow-y:auto; padding:18px; transform:translateX(100%); transition:transform 0.3s ease;
   }
-  #configPanel.open { transform: translateX(0); }
-  .cfg-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 14px; }
-  .cfg-section { margin-bottom: 18px; border-bottom: 1px solid #2a2a2a; padding-bottom: 14px; }
-  .cfg-section:last-child { border-bottom: none; }
-  .cfg-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 7px; }
+  #configPanel.open { transform:translateX(0); }
+  .cfg-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:14px; }
+  .cfg-section { margin-bottom:16px; border-bottom:1px solid #2a2a2a; padding-bottom:14px; }
+  .cfg-section:last-child { border-bottom:none; }
+  .cfg-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; }
   .cfg-input {
-    width: 100%; background: #111; border: 1px solid #333;
-    border-radius: 7px; color: #ccc; font-size: 13px;
-    padding: 8px 10px; outline: none; margin-bottom: 7px;
+    width:100%; background:#111; border:1px solid #333; border-radius:7px;
+    color:#ccc; font-size:13px; padding:8px 10px; outline:none; margin-bottom:7px;
   }
-  .cfg-input:focus { border-color: #555; }
+  .cfg-input:focus { border-color:#555; }
   .cfg-btn {
-    width: 100%; background: #2a2a2a; border: 1px solid #444;
-    border-radius: 7px; color: #ccc; font-size: 13px;
-    padding: 8px; cursor: pointer; margin-bottom: 7px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    width:100%; background:#2a2a2a; border:1px solid #444; border-radius:7px;
+    color:#ccc; font-size:13px; padding:8px; cursor:pointer; margin-bottom:7px;
+    display:flex; align-items:center; justify-content:center; gap:6px;
   }
-  .cfg-btn:hover { background: #333; color: #fff; }
-  .cfg-btn.primary { background: #1a5a3a; border-color: #2a8a5a; color: #80ffb0; }
-  .cfg-btn.primary:hover { background: #1f6f47; }
-  .yt-list { list-style: none; margin-bottom: 8px; }
+  .cfg-btn:hover { background:#333; color:#fff; }
+  .cfg-btn.primary { background:#1a5a3a; border-color:#2a8a5a; color:#80ffb0; }
+  .cfg-btn.primary:hover { background:#1f6f47; }
+  .cfg-note { font-size:11px; color:#555; line-height:1.6; margin-top:4px; }
+  .yt-list { list-style:none; margin-bottom:8px; }
   .yt-list li {
-    display: flex; align-items: center; gap: 7px;
-    background: #111; border: 1px solid #2a2a2a;
-    border-radius: 6px; padding: 6px 10px; margin-bottom: 5px;
-    font-size: 12px; color: #aaa;
+    display:flex; align-items:center; gap:7px;
+    background:#111; border:1px solid #2a2a2a; border-radius:6px;
+    padding:6px 10px; margin-bottom:5px; font-size:12px; color:#aaa;
   }
-  .yt-list li span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .yt-list li button { background: none; border: none; color: #e63946; cursor: pointer; font-size: 15px; padding: 0; }
+  .yt-list li span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .yt-list li button { background:none; border:none; color:#e63946; cursor:pointer; font-size:15px; padding:0; }
+  .status-ok  { color:#80ff99; font-size:11px; margin-top:4px; }
+  .status-err { color:#ff8080; font-size:11px; margin-top:4px; }
 
   #cfgToggle {
-    position: fixed; top: 12px; right: 12px; z-index: 200;
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 9px; color: #fff; font-size: 20px;
-    width: 42px; height: 42px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
+    position:fixed; top:12px; right:12px; z-index:200;
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+    border-radius:9px; color:#fff; font-size:20px;
+    width:42px; height:42px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:background 0.2s;
   }
-  #cfgToggle:hover { background: rgba(255,255,255,0.22); }
+  #cfgToggle:hover { background:rgba(255,255,255,0.22); }
 </style>
 </head>
 <body>
@@ -223,10 +190,16 @@
 <div id="tvBg"></div>
 
 <div class="tv-root">
+  <!-- TOP -->
   <div class="row-top">
     <div class="box-judul">
-      <div class="judul-main">PUSAT PENERIMAAN MAHASISWA BARU</div>
-      <div class="judul-main">UIN SUNAN AMPEL SURABAYA</div>
+      <img class="logo-uinsa" src="https://uinsa.ac.id/assets/img/logo-uinsa.png"
+        onerror="this.src='https://upload.wikimedia.org/wikipedia/id/thumb/e/e1/UINSA_logo.png/240px-UINSA_logo.png'; this.onerror=null;"
+        alt="Logo UINSA">
+      <div class="judul-text">
+        <div class="judul-main">PUSAT PENERIMAAN MAHASISWA BARU</div>
+        <div class="judul-main">UIN SUNAN AMPEL SURABAYA</div>
+      </div>
     </div>
     <div class="box-waktu">
       <div class="waktu-jam" id="clockDisplay">00:00:00</div>
@@ -235,15 +208,16 @@
     </div>
   </div>
 
+  <!-- MAIN -->
   <div class="row-main">
     <div class="box-video">
       <div id="ytPlayerDiv"></div>
       <div class="vid-overlay" id="vidOverlay">
         <i class="ti ti-brand-youtube"></i>
-        <span>Tambahkan URL YouTube di panel pengaturan (tekan S)</span>
+        <span>URL YouTube diambil dari Google Sheet</span>
       </div>
       <div class="playlist-nav" id="playlistNav" style="display:none">
-        <span style="font-size:clamp(12px,1.1vw,16px);color:#aaa;white-space:nowrap">Video:</span>
+        <span style="font-size:clamp(11px,1vw,15px);color:#aaa;white-space:nowrap">Video:</span>
         <div id="playlistBtns" style="display:flex;gap:5px;flex-wrap:wrap;flex:1"></div>
         <button onclick="prevVideo()"><i class="ti ti-chevron-left"></i></button>
         <button onclick="nextVideo()"><i class="ti ti-chevron-right"></i></button>
@@ -254,10 +228,10 @@
       <div class="box-timeline">
         <div class="tl-header">
           <span><i class="ti ti-calendar-event" style="vertical-align:-2px;margin-right:6px"></i>Timeline Kegiatan PMB</span>
-          <button onclick="fetchSheet()" title="Refresh"><i class="ti ti-refresh"></i></button>
+          <button onclick="fetchSheet(true)" title="Refresh"><i class="ti ti-refresh"></i></button>
         </div>
         <div class="tl-body" id="tlBody">
-          <div class="tl-msg">Masukkan link Google Sheet di pengaturan</div>
+          <div class="tl-msg">Memuat data...</div>
         </div>
       </div>
       <div class="box-poster">
@@ -270,6 +244,7 @@
     </div>
   </div>
 
+  <!-- MARQUEE -->
   <div class="box-marquee">
     <div class="mq-label">INFO PMB</div>
     <div class="mq-wrap">
@@ -285,22 +260,40 @@
   <i class="ti ti-settings"></i>
 </button>
 
+<!-- CONFIG PANEL -->
 <div id="configPanel">
   <div class="cfg-title"><i class="ti ti-settings" style="vertical-align:-2px;margin-right:6px"></i>Pengaturan Display</div>
 
   <div class="cfg-section">
-    <div class="cfg-label">Background</div>
-    <label class="cfg-btn" style="cursor:pointer">
-      <i class="ti ti-photo-up"></i> Upload Gambar Background
-      <input type="file" accept="image/*" onchange="loadBg(this)" style="display:none">
-    </label>
+    <div class="cfg-label">Google Sheet (Sumber Semua Data)</div>
+    <input class="cfg-input" type="text" id="sheetUrl" placeholder="Link Google Sheet publik...">
+    <button class="cfg-btn primary" onclick="fetchSheet(true)"><i class="ti ti-download"></i> Muat / Refresh</button>
+    <div id="sheetStatus"></div>
+    <div class="cfg-note">
+      Format kolom sheet:<br>
+      A = Nama Kegiatan<br>
+      B = Tanggal (YYYY-MM-DD)<br>
+      C = Keterangan<br>
+      D = URL YouTube (opsional, bisa lebih dari 1 baris)<br>
+      E = Link Poster Google Drive (opsional, bisa lebih dari 1 baris)<br>
+      <br>
+      Sheet harus publik: Anyone with link → Viewer
+    </div>
   </div>
 
   <div class="cfg-section">
-    <div class="cfg-label">YouTube Playlist (Autoplay otomatis)</div>
-    <ul class="yt-list" id="ytList"></ul>
-    <input class="cfg-input" type="text" id="ytInput" placeholder="https://www.youtube.com/watch?v=...">
-    <button class="cfg-btn primary" onclick="addVideo()"><i class="ti ti-plus"></i> Tambah Video</button>
+    <div class="cfg-label">Background</div>
+    <div class="cfg-note" style="margin-bottom:8px">
+      Upload file ke folder <code style="color:#aaa">/img/</code> di GitHub repo Anda,<br>
+      lalu masukkan nama filenya di bawah.
+    </div>
+    <input class="cfg-input" type="text" id="bgFilename" placeholder="contoh: background.jpg">
+    <button class="cfg-btn primary" onclick="setBgFromGithub()"><i class="ti ti-photo"></i> Terapkan Background</button>
+    <div id="bgStatus"></div>
+  </div>
+
+  <div class="cfg-section">
+    <div class="cfg-label">Navigasi Video Manual</div>
     <div style="display:flex;gap:7px">
       <button class="cfg-btn" style="flex:1" onclick="prevVideo()"><i class="ti ti-skip-back"></i> Prev</button>
       <button class="cfg-btn" style="flex:1" onclick="nextVideo()"><i class="ti ti-skip-forward"></i> Next</button>
@@ -308,224 +301,207 @@
   </div>
 
   <div class="cfg-section">
-    <div class="cfg-label">Google Sheet Timeline</div>
-    <input class="cfg-input" type="text" id="sheetUrl" placeholder="Link Google Sheet publik...">
-    <button class="cfg-btn primary" onclick="fetchSheet()"><i class="ti ti-download"></i> Muat / Refresh</button>
-    <div style="font-size:11px;color:#666;line-height:1.5">Format: A=Nama Kegiatan | B=Tanggal | C=Keterangan<br>Sheet harus publik: Anyone with link → Viewer</div>
-  </div>
-
-  <div class="cfg-section">
-    <div class="cfg-label">Poster Slideshow (Upload Gambar)</div>
-    <label class="cfg-btn primary" style="cursor:pointer">
-      <i class="ti ti-photo-up"></i> Upload Gambar Poster
-      <input type="file" accept="image/*" multiple onchange="addPosters(this)" style="display:none">
-    </label>
-    <ul class="yt-list" id="posterList"></ul>
-    <div class="cfg-label" style="margin-top:6px">Ganti poster setiap (detik)</div>
+    <div class="cfg-label">Poster Slideshow</div>
+    <div class="cfg-label" style="margin-top:2px">Ganti poster setiap (detik)</div>
     <input class="cfg-input" type="number" id="posterSec" value="10" min="3" max="120" onchange="setupPosterSlide()">
   </div>
 </div>
 
-<!-- YouTube IFrame API -->
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
-// ── CLOCK & HIJRI ──────────────────────────────────────────
+// ── CONFIG — SESUAIKAN INI ─────────────────────────────────
+const GITHUB_RAW = 'https://raw.githubusercontent.com/USERNAME/REPO/main';
+// Ganti USERNAME dan REPO dengan repo GitHub Anda
+// Contoh: 'https://raw.githubusercontent.com/budi/display-pmb/main'
+
+const SHEET_URL_DEFAULT = 'https://docs.google.com/spreadsheets/d/10Gkdv3aXsC1tFwfwxMx3WltzHhlAtg9F2IuQOJxN2Yw/edit?usp=sharing';
+// ──────────────────────────────────────────────────────────
+
 const HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const HIJRI_BLN = ["Muharram","Safar","Rabi'ul Awwal","Rabi'ul Akhir","Jumadil Awwal","Jumadil Akhir","Rajab","Sya'ban","Ramadhan","Syawal","Dzulqa'dah","Dzulhijjah"];
 
+// ── CLOCK ──────────────────────────────────────────────────
 function toHijri(date) {
-  const jd = Math.floor(date.getTime()/86400000 + 2440587.5) + 0.5;
-  let l = jd-1948440+10632, n = Math.floor((l-1)/10631);
-  l = l-10631*n+354;
-  let j = (Math.floor((10985-l)/5316))*(Math.floor((50*l)/17719))+(Math.floor(l/5670))*(Math.floor((43*l)/15238));
-  l = l-(Math.floor((30-j)/15))*(Math.floor((17719*j)/50))-(Math.floor(j/16))*(Math.floor((15238*j)/43))+29;
-  let m = Math.floor((24*l)/709), d = l-Math.floor((709*m)/24), y = 30*n+j-30;
+  const jd = Math.floor(date.getTime()/86400000+2440587.5)+0.5;
+  let l=jd-1948440+10632, n=Math.floor((l-1)/10631);
+  l=l-10631*n+354;
+  let j=(Math.floor((10985-l)/5316))*(Math.floor((50*l)/17719))+(Math.floor(l/5670))*(Math.floor((43*l)/15238));
+  l=l-(Math.floor((30-j)/15))*(Math.floor((17719*j)/50))-(Math.floor(j/16))*(Math.floor((15238*j)/43))+29;
+  let m=Math.floor((24*l)/709), d=l-Math.floor((709*m)/24), y=30*n+j-30;
   return {d,m,y};
 }
-
 function updateClock() {
-  const now = new Date();
-  document.getElementById('clockDisplay').textContent =
+  const now=new Date();
+  document.getElementById('clockDisplay').textContent=
     String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('dateDisplay').textContent =
+  document.getElementById('dateDisplay').textContent=
     HARI[now.getDay()]+', '+now.getDate()+' '+BULAN[now.getMonth()]+' '+now.getFullYear();
-  const hj = toHijri(now);
-  document.getElementById('hijriDisplay').textContent = hj.d+' '+HIJRI_BLN[hj.m-1]+' '+hj.y+' H';
+  const hj=toHijri(now);
+  document.getElementById('hijriDisplay').textContent=hj.d+' '+HIJRI_BLN[hj.m-1]+' '+hj.y+' H';
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateClock,1000); updateClock();
 
-// ── BACKGROUND ─────────────────────────────────────────────
-function loadBg(input) {
-  const file = input.files[0]; if (!file) return;
-  const r = new FileReader();
-  r.onload = e => { document.getElementById('tvBg').style.backgroundImage = 'url('+e.target.result+')'; };
-  r.readAsDataURL(file);
+// ── BACKGROUND dari GitHub ─────────────────────────────────
+function setBgFromGithub() {
+  const filename = document.getElementById('bgFilename').value.trim();
+  if (!filename) return;
+  const url = GITHUB_RAW+'/img/'+filename;
+  const bg = document.getElementById('tvBg');
+  const el = document.getElementById('bgStatus');
+  const img = new Image();
+  img.onload = () => { bg.style.backgroundImage='url('+url+')'; el.innerHTML='<div class="status-ok">✓ Background diterapkan</div>'; };
+  img.onerror = () => { el.innerHTML='<div class="status-err">✗ Gambar tidak ditemukan di /img/'+filename+'</div>'; };
+  img.src = url;
 }
+// Auto-load background.jpg saat start
+window.addEventListener('load', () => {
+  const url = GITHUB_RAW+'/img/background.jpg';
+  const img = new Image();
+  img.onload = () => { document.getElementById('tvBg').style.backgroundImage='url('+url+')'; };
+  img.src = url;
+});
 
 // ── CONFIG TOGGLE ──────────────────────────────────────────
 function toggleConfig() { document.getElementById('configPanel').classList.toggle('open'); }
 
-// ── YOUTUBE AUTOPLAY via IFrame API ───────────────────────
-let ytPlayer = null, ytVideos = [], ytIndex = 0, ytReady = false;
+// ── YOUTUBE via IFrame API ─────────────────────────────────
+let ytPlayer=null, ytVideos=[], ytIndex=0, ytReady=false;
 
 function extractYtId(url) {
-  const m1 = url.match(/[?&]v=([^&]+)/);
-  const m2 = url.match(/youtu\.be\/([^?]+)/);
-  const m3 = url.match(/embed\/([^?&]+)/);
+  if (!url) return null;
+  url = url.trim();
+  const m1=url.match(/[?&]v=([^&]+)/);
+  const m2=url.match(/youtu\.be\/([^?]+)/);
+  const m3=url.match(/embed\/([^?&]+)/);
   return (m1&&m1[1])||(m2&&m2[1])||(m3&&m3[1])||null;
 }
 
-// Called by YouTube IFrame API when ready
 function onYouTubeIframeAPIReady() {
-  ytReady = true;
-  // Replace placeholder div with player
-  const div = document.getElementById('ytPlayerDiv');
-  div.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
-  ytPlayer = new YT.Player('ytPlayerDiv', {
-    width: '100%', height: '100%',
-    playerVars: {
-      autoplay: 1,
-      controls: 1,
-      rel: 0,
-      modestbranding: 1,
-      iv_load_policy: 3,
-      fs: 0
-    },
-    events: {
-      onStateChange: onPlayerStateChange,
-      onReady: onPlayerReady
-    }
+  ytReady=true;
+  const div=document.getElementById('ytPlayerDiv');
+  div.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
+  ytPlayer=new YT.Player('ytPlayerDiv',{
+    width:'100%', height:'100%',
+    playerVars:{ autoplay:1, controls:1, rel:0, modestbranding:1, iv_load_policy:3 },
+    events:{ onStateChange:onPlayerStateChange, onReady:onPlayerReady }
   });
 }
-
-function onPlayerReady(event) {
-  if (ytVideos.length) playVideo(0);
+function onPlayerReady() { if(ytVideos.length) playVideo(0); }
+function onPlayerStateChange(e) {
+  if(e.data===0 && ytVideos.length>1) playVideo((ytIndex+1)%ytVideos.length);
 }
-
-function onPlayerStateChange(event) {
-  // YT.PlayerState.ENDED = 0
-  if (event.data === 0 && ytVideos.length > 1) {
-    // Auto advance to next video
-    playVideo((ytIndex + 1) % ytVideos.length);
-  }
-}
-
-function addVideo() {
-  const url = document.getElementById('ytInput').value.trim();
-  const id = extractYtId(url);
-  if (!id) { alert('URL YouTube tidak valid.'); return; }
-  ytVideos.push({ url, id });
-  document.getElementById('ytInput').value = '';
-  renderYtList();
-  playVideo(ytVideos.length - 1);
-}
-
-function removeVideo(i) {
-  ytVideos.splice(i, 1);
-  renderYtList();
-  if (ytVideos.length) playVideo(Math.min(ytIndex, ytVideos.length-1));
-  else if (ytPlayer) { ytPlayer.stopVideo(); document.getElementById('vidOverlay').style.display='flex'; }
-}
-
-function renderYtList() {
-  document.getElementById('ytList').innerHTML = ytVideos.map((v,i) =>
-    `<li><span>Video ${i+1}: ${v.id}</span><button onclick="removeVideo(${i})"><i class="ti ti-x"></i></button></li>`
-  ).join('');
-  const nav = document.getElementById('playlistNav');
-  const btns = document.getElementById('playlistBtns');
-  if (ytVideos.length > 1) {
-    nav.style.display = 'flex';
-    btns.innerHTML = ytVideos.map((v,i) =>
-      `<button class="${i===ytIndex?'active':''}" onclick="playVideo(${i})">${i+1}</button>`
-    ).join('');
-  } else {
-    nav.style.display = 'none';
-  }
-}
-
 function playVideo(i) {
-  if (!ytVideos.length) return;
-  ytIndex = i;
-  document.getElementById('vidOverlay').style.display = 'none';
-  if (ytPlayer && ytPlayer.loadVideoById) {
-    ytPlayer.loadVideoById(ytVideos[i].id);
-  }
-  renderYtList();
+  if(!ytVideos.length) return;
+  ytIndex=i;
+  document.getElementById('vidOverlay').style.display='none';
+  if(ytPlayer&&ytPlayer.loadVideoById) ytPlayer.loadVideoById(ytVideos[i].id);
+  renderPlaylistNav();
+}
+function nextVideo() { if(ytVideos.length) playVideo((ytIndex+1)%ytVideos.length); }
+function prevVideo() { if(ytVideos.length) playVideo((ytIndex-1+ytVideos.length)%ytVideos.length); }
+function renderPlaylistNav() {
+  const nav=document.getElementById('playlistNav');
+  const btns=document.getElementById('playlistBtns');
+  if(ytVideos.length>1) {
+    nav.style.display='flex';
+    btns.innerHTML=ytVideos.map((v,i)=>
+      `<button class="${i===ytIndex?'active':''}" onclick="playVideo(${i})">${i+1}</button>`).join('');
+  } else { nav.style.display='none'; }
 }
 
-function nextVideo() { if (ytVideos.length) playVideo((ytIndex+1) % ytVideos.length); }
-function prevVideo() { if (ytVideos.length) playVideo((ytIndex-1+ytVideos.length) % ytVideos.length); }
+// ── GOOGLE SHEET ───────────────────────────────────────────
+let tlData=[];
 
-// Preload default video
-window.addEventListener('load', () => {
-  const firstId = 'dhDZ8RwytPk';
-  ytVideos.push({ url: 'https://www.youtube.com/watch?v='+firstId, id: firstId });
-  // Player will auto-play once API is ready via onPlayerReady
-  renderYtList();
-  document.getElementById('sheetUrl').value = 'https://docs.google.com/spreadsheets/d/10Gkdv3aXsC1tFwfwxMx3WltzHhlAtg9F2IuQOJxN2Yw/edit?usp=sharing';
-  fetchSheet();
-});
-
-// ── GOOGLE SHEET TIMELINE ─────────────────────────────────
-let tlData = [];
-
-function sheetIdFromUrl(url) {
-  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  return m ? m[1] : null;
-}
+function sheetId(url) { const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/); return m?m[1]:null; }
 
 function parseDate(val) {
-  if (!val) return null;
-  if (typeof val === 'string' && val.startsWith('Date(')) {
-    const p = val.replace('Date(','').replace(')','').split(',');
+  if(!val) return null;
+  if(typeof val==='string'&&val.startsWith('Date(')) {
+    const p=val.replace('Date(','').replace(')','').split(',');
     return new Date(+p[0],+p[1],+p[2]);
   }
-  const d = new Date(val);
-  return isNaN(d) ? null : d;
+  const d=new Date(val); return isNaN(d)?null:d;
 }
 
 function cdInfo(date) {
-  if (!date) return { label: '-', cls: 'cd-later', dot: 'dot-later' };
-  const now = new Date(); now.setHours(0,0,0,0);
-  const t = new Date(date); t.setHours(0,0,0,0);
-  const diff = Math.round((t-now)/86400000);
-  if (diff < 0)   return { label: 'Selesai',         cls: 'cd-done',  dot: 'dot-done'  };
-  if (diff === 0)  return { label: 'Hari ini',        cls: 'cd-today', dot: 'dot-today' };
-  if (diff <= 7)   return { label: diff+' hari lagi', cls: 'cd-soon',  dot: 'dot-soon'  };
-  return             { label: diff+' hari lagi', cls: 'cd-later', dot: 'dot-later' };
+  if(!date) return {label:'-',cls:'cd-later',dot:'dot-later'};
+  const now=new Date(); now.setHours(0,0,0,0);
+  const t=new Date(date); t.setHours(0,0,0,0);
+  const diff=Math.round((t-now)/86400000);
+  if(diff<0)   return {label:'Selesai',        cls:'cd-done',  dot:'dot-done'};
+  if(diff===0)  return {label:'Hari ini',       cls:'cd-today', dot:'dot-today'};
+  if(diff<=7)   return {label:diff+' hari lagi',cls:'cd-soon',  dot:'dot-soon'};
+  return               {label:diff+' hari lagi',cls:'cd-later', dot:'dot-later'};
 }
 
-function fetchSheet() {
-  const raw = document.getElementById('sheetUrl').value.trim();
-  if (!raw) return;
-  const id = sheetIdFromUrl(raw);
-  if (!id) { document.getElementById('tlBody').innerHTML = '<div class="tl-msg" style="color:#f06060">Link tidak valid</div>'; return; }
-  document.getElementById('tlBody').innerHTML = '<div class="tl-msg">Memuat...</div>';
+function fetchSheet(showStatus) {
+  const raw=document.getElementById('sheetUrl').value.trim();
+  if(!raw) return;
+  const id=sheetId(raw);
+  if(!id) {
+    document.getElementById('tlBody').innerHTML='<div class="tl-msg" style="color:#f06060">Link tidak valid</div>';
+    return;
+  }
+  if(showStatus) document.getElementById('tlBody').innerHTML='<div class="tl-msg">Memuat...</div>';
+  const statusEl=document.getElementById('sheetStatus');
+
   fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&sheet=Sheet1')
-    .then(r => r.text())
-    .then(txt => {
-      const json = JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
-      tlData = json.table.rows.map(r => ({
-        nama:    r.c[0] ? String(r.c[0].v||'') : '',
-        tanggal: r.c[1] ? r.c[1].v||'' : '',
-        ket:     r.c[2] ? String(r.c[2].v||'') : '',
-      })).filter(r => r.nama && r.nama.toLowerCase() !== 'nama kegiatan');
-      renderTimeline();
-      buildMarquee();
+    .then(r=>r.text())
+    .then(txt=>{
+      const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
+      const rows=json.table.rows;
+
+      // Parse semua kolom: A=Nama, B=Tanggal, C=Keterangan, D=YouTube URL, E=Poster Drive
+      tlData=[]; const newVideos=[]; const newPosters=[];
+
+      rows.forEach(r=>{
+        const nama  = r.c[0]?String(r.c[0].v||''):'';
+        const tgl   = r.c[1]?r.c[1].v||'':'';
+        const ket   = r.c[2]?String(r.c[2].v||''):'';
+        const ytUrl = r.c[3]?String(r.c[3].v||''):'';
+        const drUrl = r.c[4]?String(r.c[4].v||''):'';
+
+        if(nama && nama.toLowerCase()!=='nama kegiatan')
+          tlData.push({nama,tanggal:tgl,ket});
+
+        const ytId=extractYtId(ytUrl);
+        if(ytId && !newVideos.find(v=>v.id===ytId))
+          newVideos.push({url:ytUrl,id:ytId});
+
+        const drId=driveId(drUrl);
+        if(drId && !newPosters.find(p=>p.id===drId))
+          newPosters.push({id:drId,src:'https://drive.google.com/thumbnail?id='+drId+'&sz=w800'});
+      });
+
+      // Update YouTube playlist jika ada perubahan
+      if(newVideos.length) {
+        ytVideos=newVideos; renderPlaylistNav();
+        if(ytPlayer&&ytPlayer.loadVideoById) playVideo(0);
+        else if(!ytReady) { /* akan diplay saat onPlayerReady */ }
+      }
+
+      // Update poster jika ada
+      if(newPosters.length) {
+        posters=newPosters; renderPosterList(); showPoster(0); setupPosterSlide();
+      }
+
+      renderTimeline(); buildMarquee();
+      if(showStatus) statusEl.innerHTML='<div class="status-ok">✓ Data dimuat: '+tlData.length+' kegiatan, '+newVideos.length+' video, '+newPosters.length+' poster</div>';
     })
-    .catch(() => {
-      document.getElementById('tlBody').innerHTML =
+    .catch(()=>{
+      document.getElementById('tlBody').innerHTML=
         '<div class="tl-msg" style="color:#f06060">Gagal memuat. Pastikan sheet sudah publik.</div>';
+      if(showStatus) document.getElementById('sheetStatus').innerHTML=
+        '<div class="status-err">✗ Gagal. Sheet harus Anyone with link → Viewer</div>';
     });
 }
 
 function renderTimeline() {
-  if (!tlData.length) { document.getElementById('tlBody').innerHTML = '<div class="tl-msg">Tidak ada data</div>'; return; }
-  document.getElementById('tlBody').innerHTML = tlData.map(row => {
-    const d = parseDate(row.tanggal), cd = cdInfo(d);
-    const tgl = d ? HARI[d.getDay()]+', '+d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear() : (row.tanggal||'-');
+  if(!tlData.length){ document.getElementById('tlBody').innerHTML='<div class="tl-msg">Tidak ada data kegiatan</div>'; return; }
+  document.getElementById('tlBody').innerHTML=tlData.map(row=>{
+    const d=parseDate(row.tanggal), cd=cdInfo(d);
+    const tgl=d?HARI[d.getDay()]+', '+d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear():(row.tanggal||'-');
     return `<div class="tl-row">
       <div class="tl-dot ${cd.dot}"></div>
       <div class="tl-info">
@@ -539,82 +515,70 @@ function renderTimeline() {
 }
 
 function buildMarquee() {
-  if (!tlData.length) return;
-  const text = tlData.map(r => {
-    const d = parseDate(r.tanggal), cd = cdInfo(d);
-    const tgl = d ? d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear() : (r.tanggal||'');
+  if(!tlData.length) return;
+  const text=tlData.map(r=>{
+    const d=parseDate(r.tanggal), cd=cdInfo(d);
+    const tgl=d?d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear():(r.tanggal||'');
     return '📌 '+r.nama+(tgl?' — '+tgl:'')+(cd.label&&cd.label!=='-'?' ('+cd.label+')':'')+(r.ket?' · '+r.ket:'');
   }).join('   |   ');
-  document.getElementById('mqA').textContent = text+'      ';
-  document.getElementById('mqB').textContent = text+'      ';
+  document.getElementById('mqA').textContent=text+'      ';
+  document.getElementById('mqB').textContent=text+'      ';
   document.getElementById('mqTrack').classList.add('running');
 }
 
-setInterval(fetchSheet, 5*60*1000);
+// Auto-refresh setiap 5 menit
+setInterval(()=>fetchSheet(false), 5*60*1000);
 
-// ── POSTER SLIDESHOW (Upload) ──────────────────────────────
-let posters = [], posterIndex = 0, posterTimer = null;
+// Init
+window.addEventListener('load',()=>{
+  document.getElementById('sheetUrl').value=SHEET_URL_DEFAULT;
+  fetchSheet(false);
+});
 
-function addPosters(input) {
-  const files = Array.from(input.files);
-  if (!files.length) return;
-  let loaded = 0;
-  files.forEach(file => {
-    const r = new FileReader();
-    r.onload = e => {
-      posters.push({ name: file.name, src: e.target.result });
-      loaded++;
-      if (loaded === files.length) {
-        renderPosterList();
-        showPoster(posters.length - files.length);
-        setupPosterSlide();
-      }
-    };
-    r.readAsDataURL(file);
-  });
-  input.value = '';
-}
+// ── POSTER SLIDESHOW (Google Drive) ───────────────────────
+let posters=[], posterIndex=0, posterTimer=null;
 
-function removePoster(i) {
-  posters.splice(i,1); renderPosterList();
-  if (posters.length) showPoster(0);
-  else { document.getElementById('posterSlide').innerHTML=''; document.getElementById('posterPh').style.display='flex'; }
+function driveId(url) {
+  if(!url) return null;
+  const m1=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  const m2=url.match(/id=([a-zA-Z0-9_-]+)/);
+  return (m1&&m1[1])||(m2&&m2[1])||null;
 }
 
 function renderPosterList() {
-  document.getElementById('posterList').innerHTML = posters.map((p,i) =>
-    `<li><span>Poster ${i+1}: ${p.name}</span><button onclick="removePoster(${i})"><i class="ti ti-x"></i></button></li>`
-  ).join('');
+  const el=document.getElementById('posterList');
+  if(el) el.innerHTML=posters.map((p,i)=>
+    `<li><span>Poster ${i+1}</span></li>`).join('');
 }
 
 function showPoster(i) {
-  if (!posters.length) return;
-  posterIndex = i;
-  document.getElementById('posterPh').style.display = 'none';
-  const slide = document.getElementById('posterSlide');
-  slide.querySelectorAll('img').forEach(img => img.classList.remove('visible'));
-  setTimeout(() => {
-    slide.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = posters[i].src; img.alt = 'Poster '+(i+1);
+  if(!posters.length) return;
+  posterIndex=i;
+  document.getElementById('posterPh').style.display='none';
+  const slide=document.getElementById('posterSlide');
+  slide.querySelectorAll('img').forEach(img=>img.classList.remove('visible'));
+  setTimeout(()=>{
+    slide.innerHTML='';
+    const img=document.createElement('img');
+    img.src=posters[i].src; img.alt='Poster '+(i+1);
     slide.appendChild(img);
-    setTimeout(() => img.classList.add('visible'), 50);
-  }, 300);
+    setTimeout(()=>img.classList.add('visible'),50);
+  },300);
 }
 
 function setupPosterSlide() {
   clearInterval(posterTimer);
-  const sec = parseInt(document.getElementById('posterSec').value)||10;
-  if (posters.length > 1)
-    posterTimer = setInterval(() => showPoster((posterIndex+1)%posters.length), sec*1000);
+  const sec=parseInt(document.getElementById('posterSec').value)||10;
+  if(posters.length>1)
+    posterTimer=setInterval(()=>showPoster((posterIndex+1)%posters.length),sec*1000);
 }
 
 // ── KEYBOARD ───────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key==='Escape') document.getElementById('configPanel').classList.remove('open');
-  if (e.key==='ArrowRight') nextVideo();
-  if (e.key==='ArrowLeft')  prevVideo();
-  if (e.key==='s'||e.key==='S') toggleConfig();
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') document.getElementById('configPanel').classList.remove('open');
+  if(e.key==='ArrowRight') nextVideo();
+  if(e.key==='ArrowLeft')  prevVideo();
+  if(e.key==='s'||e.key==='S') toggleConfig();
 });
 </script>
 </body>
