@@ -111,8 +111,8 @@
     background:rgba(255,255,255,0.04);
     display:flex; align-items:center; gap:8px;
   }
-  .tl-group-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-  .tl-group-name { font-size:clamp(13px,1.3vw,18px); font-weight:800; color:#fff; letter-spacing:0.3px; }
+  .tl-group-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .tl-group-name { font-size:clamp(15px,1.6vw,24px); font-weight:800; color:#fff; letter-spacing:0.3px; }
 
   /* Child row (Tahap) */
   .tl-row {
@@ -121,19 +121,19 @@
   }
   .tl-row:last-child { border-bottom:none; }
   .tl-row-line { width:2px; flex-shrink:0; border-radius:2px; align-self:stretch; margin-top:2px; min-height:14px; }
-  .tl-dot { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .tl-dot { width:10px; height:10px; border-radius:50%; margin-top:5px; flex-shrink:0; }
   .dot-done       { background:#444; }
   .dot-today      { background:#80ff99; box-shadow:0 0 6px #80ff9988; }
   .dot-active     { background:#f0c060; box-shadow:0 0 6px #f0c06088; }
   .dot-soon       { background:#f0c060; }
   .dot-later      { background:#a0c4ff; }
   .tl-info { flex:1; min-width:0; }
-  .tl-tahap { font-size:clamp(12px,1.15vw,17px); color:#d0d0d0; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .tl-tgl   { font-size:clamp(10px,0.95vw,14px); color:#666; margin-top:1px; }
-  .tl-ket   { font-size:clamp(10px,0.95vw,14px); color:#888; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .tl-cd    { text-align:right; font-size:clamp(11px,1vw,15px); font-weight:700; white-space:nowrap; min-width:80px; line-height:1.4; }
+  .tl-tahap { font-size:clamp(14px,1.4vw,22px); color:#d0d0d0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-tgl   { font-size:clamp(12px,1.1vw,17px); color:#666; margin-top:2px; }
+  .tl-ket   { font-size:clamp(12px,1.1vw,17px); color:#888; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-cd    { text-align:right; font-size:clamp(13px,1.2vw,18px); font-weight:700; white-space:nowrap; min-width:90px; line-height:1.4; }
   .cd-done   { color:#444; } .cd-today { color:#80ff99; } .cd-active { color:#f0c060; } .cd-soon { color:#f0d080; } .cd-later { color:#a0c4ff; }
-  .tl-msg { text-align:center; padding:20px; color:#555; font-size:clamp(13px,1.2vw,17px); }
+  .tl-msg { text-align:center; padding:20px; color:#555; font-size:clamp(14px,1.3vw,19px); }
 
 
   .poster-ph { display:flex; flex-direction:column; align-items:center; gap:8px; color:#444; }
@@ -407,7 +407,7 @@ function onYouTubeIframeAPIReady() {
   div.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
   ytPlayer=new YT.Player('ytPlayerDiv',{
     width:'100%', height:'100%',
-    playerVars:{ autoplay:1, mute:1, controls:1, rel:0, modestbranding:1, iv_load_policy:3 },
+    playerVars:{ autoplay:1, mute:1, controls:1, rel:0, modestbranding:1, iv_load_policy:3, loop:0 },
     events:{ onStateChange:onPlayerStateChange, onReady:onPlayerReady }
   });
 }
@@ -417,8 +417,8 @@ function onPlayerReady() {
   document.getElementById('muteBanner').style.display='flex';
 }
 function onPlayerStateChange(e) {
-  // YT.PlayerState.ENDED = 0 → auto next
-  if(e.data===0 && ytVideos.length>1) playVideo((ytIndex+1)%ytVideos.length);
+  // ENDED (0) → lanjut ke video berikutnya, loop kembali ke awal setelah video terakhir
+  if(e.data===0 && ytVideos.length>1) playVideo((ytIndex+1) % ytVideos.length);
 }
 function unmuteVideo() {
   if(ytPlayer && ytPlayer.unMute) {
