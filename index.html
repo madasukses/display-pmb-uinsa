@@ -193,9 +193,7 @@
   <!-- TOP -->
   <div class="row-top">
     <div class="box-judul">
-      <img class="logo-uinsa" src="https://uinsa.ac.id/assets/img/logo-uinsa.png"
-        onerror="this.src='https://upload.wikimedia.org/wikipedia/id/thumb/e/e1/UINSA_logo.png/240px-UINSA_logo.png'; this.onerror=null;"
-        alt="Logo UINSA">
+      <img class="logo-uinsa" src="https://raw.githubusercontent.com/madasukses/display-pmb-uinsa/main/img/logo.png" alt="Logo UINSA">
       <div class="judul-text">
         <div class="judul-main">PUSAT PENERIMAAN MAHASISWA BARU</div>
         <div class="judul-main">UIN SUNAN AMPEL SURABAYA</div>
@@ -283,13 +281,7 @@
 
   <div class="cfg-section">
     <div class="cfg-label">Background</div>
-    <div class="cfg-note" style="margin-bottom:8px">
-      Upload file ke folder <code style="color:#aaa">/img/</code> di GitHub repo Anda,<br>
-      lalu masukkan nama filenya di bawah.
-    </div>
-    <input class="cfg-input" type="text" id="bgFilename" placeholder="contoh: background.jpg">
-    <button class="cfg-btn primary" onclick="setBgFromGithub()"><i class="ti ti-photo"></i> Terapkan Background</button>
-    <div id="bgStatus"></div>
+    <div class="cfg-note">Background diambil otomatis dari <code style="color:#aaa">img/bg.jpg</code> di repo GitHub.</div>
   </div>
 
   <div class="cfg-section">
@@ -310,12 +302,7 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 // ── CONFIG — SESUAIKAN INI ─────────────────────────────────
-const GITHUB_RAW = 'https://raw.githubusercontent.com/USERNAME/REPO/main';
-// Ganti USERNAME dan REPO dengan repo GitHub Anda
-// Contoh: 'https://raw.githubusercontent.com/budi/display-pmb/main'
-
 const SHEET_URL_DEFAULT = 'https://docs.google.com/spreadsheets/d/10Gkdv3aXsC1tFwfwxMx3WltzHhlAtg9F2IuQOJxN2Yw/edit?usp=sharing';
-// ──────────────────────────────────────────────────────────
 
 const HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -342,24 +329,10 @@ function updateClock() {
 }
 setInterval(updateClock,1000); updateClock();
 
-// ── BACKGROUND dari GitHub ─────────────────────────────────
-function setBgFromGithub() {
-  const filename = document.getElementById('bgFilename').value.trim();
-  if (!filename) return;
-  const url = GITHUB_RAW+'/img/'+filename;
-  const bg = document.getElementById('tvBg');
-  const el = document.getElementById('bgStatus');
-  const img = new Image();
-  img.onload = () => { bg.style.backgroundImage='url('+url+')'; el.innerHTML='<div class="status-ok">✓ Background diterapkan</div>'; };
-  img.onerror = () => { el.innerHTML='<div class="status-err">✗ Gambar tidak ditemukan di /img/'+filename+'</div>'; };
-  img.src = url;
-}
-// Auto-load background.jpg saat start
+
+// Auto-load background dari GitHub
 window.addEventListener('load', () => {
-  const url = GITHUB_RAW+'/img/background.jpg';
-  const img = new Image();
-  img.onload = () => { document.getElementById('tvBg').style.backgroundImage='url('+url+')'; };
-  img.src = url;
+  document.getElementById('tvBg').style.backgroundImage = "url('https://raw.githubusercontent.com/madasukses/display-pmb-uinsa/main/img/bg.jpg')";
 });
 
 // ── CONFIG TOGGLE ──────────────────────────────────────────
