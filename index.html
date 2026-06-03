@@ -98,22 +98,35 @@
   .tl-body::-webkit-scrollbar { width:4px; }
   .tl-body::-webkit-scrollbar-thumb { background:#444; border-radius:2px; }
 
+  /* Group header (Kegiatan utama) */
+  .tl-group {
+    padding:8px 14px 4px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.04);
+    display:flex; align-items:center; gap:8px;
+  }
+  .tl-group-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .tl-group-name { font-size:clamp(13px,1.3vw,18px); font-weight:800; color:#fff; letter-spacing:0.3px; }
+
+  /* Child row (Tahap) */
   .tl-row {
-    display:flex; align-items:flex-start; gap:10px;
-    padding:9px 14px; border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:flex-start; gap:8px;
+    padding:5px 14px 5px 30px; border-bottom:1px solid rgba(255,255,255,0.04);
   }
   .tl-row:last-child { border-bottom:none; }
-  .tl-dot { width:11px; height:11px; border-radius:50%; margin-top:5px; flex-shrink:0; }
-  .dot-done  { background:#555; }
-  .dot-today { background:#80ff99; box-shadow:0 0 8px #80ff9988; }
-  .dot-soon  { background:#f0c060; }
-  .dot-later { background:#a0c4ff; }
+  .tl-row-line { width:2px; flex-shrink:0; border-radius:2px; align-self:stretch; margin-top:2px; min-height:14px; }
+  .tl-dot { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .dot-done       { background:#444; }
+  .dot-today      { background:#80ff99; box-shadow:0 0 6px #80ff9988; }
+  .dot-active     { background:#f0c060; box-shadow:0 0 6px #f0c06088; }
+  .dot-soon       { background:#f0c060; }
+  .dot-later      { background:#a0c4ff; }
   .tl-info { flex:1; min-width:0; }
-  .tl-nama { font-size:clamp(13px,1.3vw,19px); color:#e8e8e8; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .tl-tgl  { font-size:clamp(11px,1vw,15px); color:#777; margin-top:2px; }
-  .tl-ket  { font-size:clamp(11px,1vw,15px); color:#999; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .tl-cd   { text-align:right; font-size:clamp(12px,1.1vw,17px); font-weight:700; white-space:nowrap; min-width:80px; }
-  .cd-done  { color:#555; } .cd-today { color:#80ff99; } .cd-soon  { color:#f0c060; } .cd-later { color:#a0c4ff; }
+  .tl-tahap { font-size:clamp(12px,1.15vw,17px); color:#d0d0d0; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-tgl   { font-size:clamp(10px,0.95vw,14px); color:#666; margin-top:1px; }
+  .tl-ket   { font-size:clamp(10px,0.95vw,14px); color:#888; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-cd    { text-align:right; font-size:clamp(11px,1vw,15px); font-weight:700; white-space:nowrap; min-width:80px; line-height:1.4; }
+  .cd-done   { color:#444; } .cd-today { color:#80ff99; } .cd-active { color:#f0c060; } .cd-soon { color:#f0d080; } .cd-later { color:#a0c4ff; }
   .tl-msg { text-align:center; padding:20px; color:#555; font-size:clamp(13px,1.2vw,17px); }
 
 
@@ -443,25 +456,46 @@ function parseDate(val) {
   const d=new Date(val); return isNaN(d)?null:d;
 }
 
-function cdInfo(date) {
-  if(!date) return {label:'-',cls:'cd-later',dot:'dot-later'};
-  const now=new Date(); now.setHours(0,0,0,0);
-  const t=new Date(date); t.setHours(0,0,0,0);
-  const diff=Math.round((t-now)/86400000);
-  if(diff<0)   return {label:'Selesai',        cls:'cd-done',  dot:'dot-done'};
-  if(diff===0)  return {label:'Hari ini',       cls:'cd-today', dot:'dot-today'};
-  if(diff<=7)   return {label:diff+' hari lagi',cls:'cd-soon',  dot:'dot-soon'};
-  return               {label:diff+' hari lagi',cls:'cd-later', dot:'dot-later'};
+function cdInfo(mulai, selesai) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const tMulai  = mulai  ? new Date(mulai)  : null; if(tMulai)  tMulai.setHours(0,0,0,0);
+  const tSelesai = selesai ? new Date(selesai): null; if(tSelesai) tSelesai.setHours(0,0,0,0);
+
+  if (!tMulai && !tSelesai) return {label:'-', cls:'cd-later', dot:'dot-later'};
+
+  // Sudah selesai
+  if (tSelesai && now > tSelesai) return {label:'Selesai', cls:'cd-done', dot:'dot-done'};
+
+  // Sedang berlangsung
+  if (tMulai && tSelesai && now >= tMulai && now <= tSelesai) {
+    const sisa = Math.round((tSelesai - now) / 86400000);
+    return {label: sisa===0 ? 'Berakhir hari ini' : 'Berlangsung\n(sisa '+sisa+' hr)', cls:'cd-active', dot:'dot-active'};
+  }
+
+  // Belum mulai
+  if (tMulai) {
+    const diff = Math.round((tMulai - now) / 86400000);
+    if (diff === 0) return {label:'Mulai hari ini', cls:'cd-today', dot:'dot-today'};
+    if (diff <= 7)  return {label:diff+' hari lagi', cls:'cd-soon',  dot:'dot-soon'};
+    return                 {label:diff+' hari lagi', cls:'cd-later', dot:'dot-later'};
+  }
+  return {label:'-', cls:'cd-later', dot:'dot-later'};
+}
+
+function groupDotClass(tahapList) {
+  // warna dot group = status paling "aktif" dari tahap-tahapnya
+  if (tahapList.some(t => t.cd.dot==='dot-active'))  return 'dot-active';
+  if (tahapList.some(t => t.cd.dot==='dot-today'))   return 'dot-today';
+  if (tahapList.some(t => t.cd.dot==='dot-soon'))    return 'dot-soon';
+  if (tahapList.some(t => t.cd.dot==='dot-later'))   return 'dot-later';
+  return 'dot-done';
 }
 
 function fetchSheet(showStatus) {
   const raw=document.getElementById('sheetUrl').value.trim();
   if(!raw) return;
   const id=sheetId(raw);
-  if(!id) {
-    document.getElementById('tlBody').innerHTML='<div class="tl-msg" style="color:#f06060">Link tidak valid</div>';
-    return;
-  }
+  if(!id) { document.getElementById('tlBody').innerHTML='<div class="tl-msg" style="color:#f06060">Link tidak valid</div>'; return; }
   if(showStatus) document.getElementById('tlBody').innerHTML='<div class="tl-msg">Memuat...</div>';
   const statusEl=document.getElementById('sheetStatus');
 
@@ -471,75 +505,107 @@ function fetchSheet(showStatus) {
       const json=JSON.parse(txt.replace(/^[^(]+\(/,'').replace(/\);?$/,''));
       const rows=json.table.rows;
 
-      // Parse semua kolom: A=Nama, B=Tanggal, C=Keterangan, D=YouTube URL, E=Poster Drive
+      // Kolom: A=Kegiatan, B=Tahap, C=Tgl Mulai, D=Tgl Selesai, E=Keterangan, F=YouTube, G=Poster Drive
       tlData=[]; const newVideos=[]; const newPosters=[];
+      const groupMap={}; // kegiatan → [{tahap,mulai,selesai,ket}]
 
       rows.forEach(r=>{
-        const nama  = r.c[0]?String(r.c[0].v||''):'';
-        const tgl   = r.c[1]?r.c[1].v||'':'';
-        const ket   = r.c[2]?String(r.c[2].v||''):'';
-        const ytUrl = r.c[3]?String(r.c[3].v||''):'';
-        const drUrl = r.c[4]?String(r.c[4].v||''):'';
+        const kegiatan = r.c[0]?String(r.c[0].v||'').trim():'';
+        const tahap    = r.c[1]?String(r.c[1].v||'').trim():'';
+        const mulai    = r.c[2]?r.c[2].v||'':'';
+        const selesai  = r.c[3]?r.c[3].v||'':'';
+        const ket      = r.c[4]?String(r.c[4].v||''):'';
+        const ytUrl    = r.c[5]?String(r.c[5].v||''):'';
+        const drUrl    = r.c[6]?String(r.c[6].v||''):'';
 
-        if(nama && nama.toLowerCase()!=='nama kegiatan')
-          tlData.push({nama,tanggal:tgl,ket});
+        if(!kegiatan || kegiatan.toLowerCase()==='kegiatan') return;
+
+        if(!groupMap[kegiatan]) groupMap[kegiatan]=[];
+        if(tahap) groupMap[kegiatan].push({tahap, mulai:parseDate(mulai), selesai:parseDate(selesai), ket});
 
         const ytId=extractYtId(ytUrl);
-        if(ytId && !newVideos.find(v=>v.id===ytId))
-          newVideos.push({url:ytUrl,id:ytId});
+        if(ytId && !newVideos.find(v=>v.id===ytId)) newVideos.push({url:ytUrl,id:ytId});
 
         const drId=driveId(drUrl);
-        if(drId && !newPosters.find(p=>p.id===drId))
-          newPosters.push({id:drId,src:'https://drive.google.com/thumbnail?id='+drId+'&sz=w800'});
+        if(drId && !newPosters.find(p=>p.id===drId)) newPosters.push({id:drId,src:'https://drive.google.com/thumbnail?id='+drId+'&sz=w800'});
       });
 
-      // Update YouTube playlist jika ada perubahan
+      // Build tlData as grouped array
+      tlData = Object.entries(groupMap).map(([kegiatan, tahapList])=>{
+        const withCd = tahapList.map(t=>({...t, cd:cdInfo(t.mulai,t.selesai)}));
+        return {kegiatan, tahapList:withCd};
+      });
+
       if(newVideos.length) {
         ytVideos=newVideos; renderPlaylistNav();
         if(ytPlayer&&ytPlayer.loadVideoById) playVideo(0);
-        else if(!ytReady) { /* akan diplay saat onPlayerReady */ }
       }
-
-      // Update poster jika ada
       if(newPosters.length) {
         posters=newPosters; renderPosterList(); showPoster(0); setupPosterSlide();
       }
 
       renderTimeline(); buildMarquee();
-      if(showStatus) statusEl.innerHTML='<div class="status-ok">✓ Data dimuat: '+tlData.length+' kegiatan, '+newVideos.length+' video, '+newPosters.length+' poster</div>';
+      if(showStatus) {
+        const total=tlData.reduce((s,g)=>s+g.tahapList.length,0);
+        statusEl.innerHTML='<div class="status-ok">✓ '+tlData.length+' kegiatan, '+total+' tahap, '+newVideos.length+' video, '+newPosters.length+' poster</div>';
+      }
     })
     .catch(()=>{
-      document.getElementById('tlBody').innerHTML=
-        '<div class="tl-msg" style="color:#f06060">Gagal memuat. Pastikan sheet sudah publik.</div>';
-      if(showStatus) document.getElementById('sheetStatus').innerHTML=
-        '<div class="status-err">✗ Gagal. Sheet harus Anyone with link → Viewer</div>';
+      document.getElementById('tlBody').innerHTML='<div class="tl-msg" style="color:#f06060">Gagal memuat. Pastikan sheet publik.</div>';
+      if(showStatus) document.getElementById('sheetStatus').innerHTML='<div class="status-err">✗ Gagal. Sheet harus Anyone with link → Viewer</div>';
     });
+}
+
+function fmtTgl(d) {
+  if(!d) return '';
+  return d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear();
 }
 
 function renderTimeline() {
   if(!tlData.length){ document.getElementById('tlBody').innerHTML='<div class="tl-msg">Tidak ada data kegiatan</div>'; return; }
-  document.getElementById('tlBody').innerHTML=tlData.map(row=>{
-    const d=parseDate(row.tanggal), cd=cdInfo(d);
-    const tgl=d?HARI[d.getDay()]+', '+d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear():(row.tanggal||'-');
-    return `<div class="tl-row">
-      <div class="tl-dot ${cd.dot}"></div>
-      <div class="tl-info">
-        <div class="tl-nama">${row.nama}</div>
-        <div class="tl-tgl">${tgl}</div>
-        ${row.ket?'<div class="tl-ket">'+row.ket+'</div>':''}
-      </div>
-      <div class="tl-cd ${cd.cls}">${cd.label}</div>
+  let html='';
+  tlData.forEach(group=>{
+    const gDot = groupDotClass(group.tahapList);
+    const dotColors = {
+      'dot-done':'#444','dot-today':'#80ff99','dot-active':'#f0c060','dot-soon':'#f0d080','dot-later':'#a0c4ff'
+    };
+    const lineColor = dotColors[gDot]||'#444';
+    html += `<div class="tl-group">
+      <div class="tl-group-dot ${gDot}"></div>
+      <div class="tl-group-name">${group.kegiatan}</div>
     </div>`;
-  }).join('');
+    group.tahapList.forEach((t,i)=>{
+      const isLast = i===group.tahapList.length-1;
+      const tglMulai  = fmtTgl(t.mulai);
+      const tglSelesai= fmtTgl(t.selesai);
+      const tglStr    = tglMulai&&tglSelesai ? tglMulai+' — '+tglSelesai : (tglMulai||tglSelesai||'-');
+      const cdLabel   = t.cd.label.replace('\n','<br>');
+      html += `<div class="tl-row">
+        <div class="tl-row-line" style="background:${isLast?'transparent':lineColor}22;border-left:2px solid ${lineColor}33"></div>
+        <div class="tl-dot ${t.cd.dot}"></div>
+        <div class="tl-info">
+          <div class="tl-tahap">↳ ${t.tahap}</div>
+          <div class="tl-tgl">${tglStr}</div>
+          ${t.ket?'<div class="tl-ket">'+t.ket+'</div>':''}
+        </div>
+        <div class="tl-cd ${t.cd.cls}">${cdLabel}</div>
+      </div>`;
+    });
+  });
+  document.getElementById('tlBody').innerHTML=html;
 }
 
 function buildMarquee() {
   if(!tlData.length) return;
-  const text=tlData.map(r=>{
-    const d=parseDate(r.tanggal), cd=cdInfo(d);
-    const tgl=d?d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear():(r.tanggal||'');
-    return '📌 '+r.nama+(tgl?' — '+tgl:'')+(cd.label&&cd.label!=='-'?' ('+cd.label+')':'')+(r.ket?' · '+r.ket:'');
-  }).join('   |   ');
+  const parts=[];
+  tlData.forEach(group=>{
+    group.tahapList.forEach(t=>{
+      const tglMulai=fmtTgl(t.mulai), tglSelesai=fmtTgl(t.selesai);
+      const tglStr=tglMulai&&tglSelesai?tglMulai+' s/d '+tglSelesai:(tglMulai||tglSelesai||'');
+      parts.push('📌 '+group.kegiatan+' › '+t.tahap+(tglStr?' ('+tglStr+')':'')+(t.cd.label&&t.cd.label!=='-'?' — '+t.cd.label.replace('\n',' '):''));
+    });
+  });
+  const text=parts.join('   |   ');
   document.getElementById('mqA').textContent=text+'      ';
   document.getElementById('mqB').textContent=text+'      ';
   document.getElementById('mqTrack').classList.add('running');
