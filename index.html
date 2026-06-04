@@ -664,7 +664,7 @@ function renderTimeline() {
 
   // Hitung total baris untuk durasi scroll (lebih banyak baris = lebih lambat)
   const totalRows = tlData.reduce((s,g) => s + g.tahapList.length + 1, 0);
-  const dur = Math.max(12, totalRows * 2.2); // ~2.2 detik per baris
+  const dur = Math.max(30, totalRows * 5); // ~5 detik per baris, min 30 detik
 
   const content = buildHtml();
   // Duplikat untuk seamless loop
